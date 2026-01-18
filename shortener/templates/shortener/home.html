@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ tenant.app_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-top: 6px solid {{ tenant.primary_color }};
+        }
+
+        button {
+            background: {{ tenant.primary_color }};
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result {
+            margin-top: 15px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    {% if tenant.logo %}
+        <img src="{{ tenant.logo.url }}" height="60">
+    {% endif %}
+
+    <h2>{{ tenant.app_name }}</h2>
+
+    <input type="text" id="urlInput" placeholder="Enter long URL here" />
+    <br>
+    <button onclick="shorten()">Shorten URL</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+function shorten() {
+    const url = document.getElementById("urlInput").value;
+
+    fetch("/api/shorten/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ url: url })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.short_url) {
+            document.getElementById("result").innerHTML =
+                `<b>Short URL:</b> <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+        } else {
+            document.getElementById("result").innerText = "Error creating short URL";
+        }
+    });
+}
+</script>
+
+</body>
+</html>
